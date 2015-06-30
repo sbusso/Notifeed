@@ -14,6 +14,8 @@ import com.epitech.hubinnovation.notifeed.Constants;
 import com.epitech.hubinnovation.notifeed.R;
 import com.epitech.hubinnovation.notifeed.adapter.FeedArrayAdapterItem;
 import com.epitech.hubinnovation.notifeed.item.Feed;
+import com.epitech.hubinnovation.notifeed.item.TmpFeedFollow;
+import com.epitech.hubinnovation.notifeed.item.TmpFeedName;
 import com.epitech.hubinnovation.notifeed.item.User;
 import com.epitech.hubinnovation.notifeed.soap_request.Request;
 import com.epitech.hubinnovation.notifeed.soap_request.RequestCallback;
@@ -33,12 +35,20 @@ public class FeedsFragment extends Fragment
     ArrayList<Feed> feedsList       = null;
     private MainActivity activity   = null;
 
+    /** Temporary objects */
+    ArrayList<TmpFeedName> feedsName        = null;
+    ArrayList<TmpFeedFollow> feedsFollow    = null;
+    int feedsNameI                          = 0;
+    int feedsFollowI                        = 0;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        activity = (MainActivity)getActivity();
+        activity    = (MainActivity)getActivity();
+        feedsName   = new ArrayList<>();
+        feedsFollow = new ArrayList<>();
     }
 
     @Override
@@ -112,56 +122,88 @@ public class FeedsFragment extends Fragment
         else
         {
             Toast.makeText(activity.getApplicationContext(), getResources().getString(R.string.error_timeout), Toast.LENGTH_LONG).show();
+            activity.hideLoadingBar();
         }
 
         /** Compute infos */
         computeInterface();
-
-        activity.hideLoadingBar();
     }
 
     private void get_feed_callback(Object result)
     {
-        String[] feed = (String[]) result;
+        String[] feed   = (String[]) result;
+        String id       = feed[0];
+        String name     = feed[1];
 
+        /** Request done */
+        ++feedsNameI;
+
+        /** Add name to list */
         if (feed != null && feed[0] != null && !feed[0].equals("") && feed[1] != null)
         {
-            adapter.refreshFeedName(feed[0], feed[1]);
+            for (int i = 0 ; i < feedsList.size() ; ++i)
+            {
+                Feed tmp = feedsList.get(i);
+                if (id != null && tmp != null && tmp.getName().equals(id))
+                {
+                    feedsName.add(new TmpFeedName(i, id, name));
+                    break;
+                }
+            }
         }
         else
-        {
             Toast.makeText(activity.getApplicationContext(), getResources().getString(R.string.error_timeout), Toast.LENGTH_LONG).show();
-        }
+
+        /** Check all feed refresh */
+        if (feedsList.size() == feedsNameI)
+            adapter.refreshFeedName(feedsName);
+        checkIfAllRequestsDone();
     }
 
     private void is_following_feed_callback(Object result)
     {
-        Object[] feed       = (Object[])result;
+        Object[] feed       = (Object[]) result;
         String id           = null;
         Boolean subscribed  = false;
 
+        /** Request done */
+        ++feedsFollowI;
+
+        /** Parse request result */
         if (feed != null && feed[0] != null && !feed[0].equals(""))
-        {
-            id = (String)feed[0];
-        }
+            id = feed[0].toString();
         if (feed != null && feed[1] != null)
-        {
             subscribed = Boolean.parseBoolean(feed[1].toString());
-        }
+
+        /** Add follow status to list */
         if (id != null && subscribed != null)
         {
-            adapter.refreshIsFollowingFeed(id, subscribed.booleanValue());
+            for (int i = 0; i < feedsList.size(); ++i)
+            {
+                Feed tmp = feedsList.get(i);
+                if (id != null && tmp != null && tmp.getName().equals(id))
+                {
+                    feedsFollow.add(new TmpFeedFollow(i, subscribed, id));
+                    break;
+                }
+            }
         }
         else
-        {
             Toast.makeText(activity.getApplicationContext(), getResources().getString(R.string.error_timeout), Toast.LENGTH_LONG).show();
+
+        /** Check all feed refresh */
+        if (feedsList.size() == feedsFollowI)
+            adapter.refreshIsFollowingFeed(feedsFollow);
+        checkIfAllRequestsDone();
+    }
+
+    private void checkIfAllRequestsDone()
+    {
+        if (feedsList.size() == feedsFollowI && feedsList.size() == feedsNameI)
+        {
+            listview_feeds.setVisibility(View.VISIBLE);
+            activity.hideLoadingBar();
         }
-//        Object[] feed  = (Object[])result;
-//
-//        if (feed != null && feed[0] != null && !feed[0].equals("") && feed[1] != null)
-//        {
-//            adapter.refreshIsFollowingFeed((String)feed[0], Boolean.parseBoolean(feed[1].toString()));
-//        }
     }
 
     private void initInterface(ViewGroup root)
@@ -177,9 +219,8 @@ public class FeedsFragment extends Fragment
         if (feedsList != null && feedsList.size() > 0)
         {
             empty_feed.setVisibility(View.INVISIBLE);
-            listview_feeds.setVisibility(View.VISIBLE);
+            listview_feeds.setVisibility(View.INVISIBLE);
 
-            // adapter = new FeedArrayAdapterItem(getActivity(), feedsList, this, listview_feeds);
             adapter = new FeedArrayAdapterItem(activity, feedsList, this, listview_feeds);
             listview_feeds.setAdapter(adapter);
         }

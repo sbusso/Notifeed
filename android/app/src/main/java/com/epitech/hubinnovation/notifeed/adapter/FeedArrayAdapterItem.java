@@ -20,6 +20,8 @@ import com.epitech.hubinnovation.notifeed.R;
 import com.epitech.hubinnovation.notifeed.activity.MainActivity;
 import com.epitech.hubinnovation.notifeed.activity.NotificationsFragment;
 import com.epitech.hubinnovation.notifeed.item.Feed;
+import com.epitech.hubinnovation.notifeed.item.TmpFeedFollow;
+import com.epitech.hubinnovation.notifeed.item.TmpFeedName;
 import com.epitech.hubinnovation.notifeed.item.User;
 import com.epitech.hubinnovation.notifeed.soap_request.Request;
 import com.epitech.hubinnovation.notifeed.soap_request.RequestCallback;
@@ -154,36 +156,40 @@ public class FeedArrayAdapterItem extends ArrayAdapter<Feed>
         return (view);
     }
 
-    public void refreshFeedName(String id, String name)
+    public void refreshFeedName(ArrayList<TmpFeedName> list)
     {
         for (int i = 0 ; i < _feedsList.size() ; ++i)
         {
             Feed tmp = _feedsList.get(i);
-            if (id != null && tmp != null && tmp.getName().equals(id))
+            for (int j = 0 ; j < list.size() ; ++j)
             {
-                tmp.setName(name);
-                this.notifyDataSetChanged();
-                break;
+                TmpFeedName tmpName = list.get(j);
+                if (tmpName.getId() != null && tmp != null && tmp.getName().equals(tmpName.getId()))
+                {
+                    tmp.setName(tmpName.getName());
+                    break;
+                }
             }
         }
+        this.notifyDataSetChanged();
     }
 
-    public void refreshIsFollowingFeed(String id, boolean follow)
+    public void refreshIsFollowingFeed(ArrayList<TmpFeedFollow> list)
     {
         for (int i = 0 ; i < _feedsList.size() ; ++i)
         {
             Feed tmp = _feedsList.get(i);
-            if (id != null && tmp != null && tmp.getId().equals(id))
+            for (int j = 0 ; j < list.size() ; ++j)
             {
-                tmp.setSubscribed(follow);
-                if (button_subscribe != null && tmp.isSubscribed() == false)
-                    button_subscribe.setBackgroundResource(R.drawable.checkbox_off);
-                else if (button_subscribe != null)
-                    button_subscribe.setBackgroundResource(R.drawable.checkbox_on);
-                this.notifyDataSetChanged();
-                break;
+                TmpFeedFollow tmpFollow = list.get(j);
+                if (tmpFollow.getId() != null && tmp != null && tmp.getId().equals(tmpFollow.getId()))
+                {
+                    tmp.setSubscribed(tmpFollow.getSubscribed());
+                    break;
+                }
             }
         }
+        this.notifyDataSetChanged();
     }
 
     private View.OnClickListener mOnCheckboxClickListener = new View.OnClickListener() {
