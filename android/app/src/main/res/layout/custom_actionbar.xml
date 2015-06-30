@@ -1,0 +1,45 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="50dp"
+    android:background="@color/main_color">
+
+    <ImageButton
+        android:id="@+id/actionbar_btn"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:background="@null"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_drawer"
+        android:paddingRight="50dp"
+        android:paddingTop="4dp"
+        android:layout_marginRight="-40dp"
+        android:layout_centerVertical="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:id="@+id/actionbar_title"
+        android:gravity="center_vertical"
+        android:textColor="@color/light_text"
+        android:textSize="20dp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/actionbar_btn"
+        android:layout_toEndOf="@+id/actionbar_btn" />
+
+    <ProgressBar
+        android:indeterminate="true"
+        android:id="@+id/loading_bar"
+        style="?android:attr/progressBarStyle"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="5dp"
+        android:visibility="invisible"
+        android:layout_centerVertical="true" />
+
+
+</RelativeLayout>

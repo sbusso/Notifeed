@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/connect_login"
+        android:layout_above="@+id/connect_password"
+        android:layout_alignRight="@+id/connect_password"
+        android:layout_alignEnd="@+id/connect_password"
+        android:layout_alignLeft="@+id/connect_password"
+        android:layout_alignStart="@+id/connect_password"
+        android:layout_marginBottom="30dp"
+        android:hint="@string/connect_default_login"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:singleLine="true" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/connect_password"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:password="false"
+        android:hint="@string/connect_default_password"
+        android:gravity="center_vertical"
+        android:paddingLeft="10dp"
+        android:singleLine="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/connect_ok"
+        android:id="@+id/connect_ok"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="20dp"
+        android:gravity="center_vertical|center_horizontal" />
+
+</RelativeLayout>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Hello!</string>
+    <string name="app_name">Notifeed</string>
+
+    <string name="new_notification">new</string>
+    <string name="btn_answer">Répondre</string>
+    <string name="btn_ok">OK</string>
+    <string name="btn_cancel">Annuler</string>
+
+    <string name="success_feedback">Message envoyé avec succès</string>
+    <string name="error_timeout">Pas de connexion de données</string>
+    <string name="error_feedback">Message non envoyé, ré-essayez plus tard</string>
+    <string name="error_follow">Échec de l\'abonnement au flux</string>
+    <string name="error_unfollow">Échec du désabonnement au flux</string>
+
+    <string name="connect_default_login">Login</string>
+    <string name="connect_default_password">Password</string>
+    <string name="connect_ok">Connexion</string>
+
+    <string name="title_feeds">Feeds</string>
+    <string name="title_connexion">Connexion</string>
+    <string name="title_feedback">Feedback</string>
+
+    <string name="empty_feedlist_title">Pas de feed actuellement</string>
+    <string name="empty_feedlist_text">Ré-essayez plus tard</string>
+    <string name="empty_notif_title">Pas de notification actuellement</string>
+    <string name="empty_notif_text">Ré-essayez plus tard</string>
+
+    <string-array name="menu_title">
+        <item>Feeds</item>
+        <item>Déconnexion</item>
+    </string-array>
+
+</resources>
