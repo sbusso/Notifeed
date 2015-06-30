@@ -145,35 +145,31 @@ public class MainActivity extends ActionBarActivity
     {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
 
-        // set title
-        alertDialogBuilder.setTitle("Your Title");
+        alertDialogBuilder.setTitle(getResources().getString(R.string.disconnect_title));
 
-        // set dialog message
         alertDialogBuilder
-                .setMessage("Click yes to exit!")
+                .setMessage(getResources().getString(R.string.disconnect_text))
                 .setCancelable(false)
-                .setPositiveButton("Yes",new DialogInterface.OnClickListener() {
+                .setPositiveButton(getResources().getString(R.string.btn_yes),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
-                        // if this button is clicked, close
-                        // current activity
-
                         /** Launching default fragment */
                         diplayConnexionView();
                     }
                 })
-                .setNegativeButton("No",new DialogInterface.OnClickListener() {
+                .setNegativeButton(getResources().getString(R.string.btn_no),new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog,int id) {
-                        // if this button is clicked, just close
-                        // the dialog box and do nothing
                         dialog.cancel();
                     }
                 });
 
-        // create alert dialog
         AlertDialog alertDialog = alertDialogBuilder.create();
-
-        // show it
         alertDialog.show();
+
+        /** Set title divider color */
+        int titleDividerId = getResources().getIdentifier("titleDivider", "id", "android");
+        View titleDivider = findViewById(titleDividerId);
+        if (titleDivider != null)
+            titleDivider.setBackgroundColor(getResources().getColor(R.color.black));
     }
 
     void openFeedbackBox()
