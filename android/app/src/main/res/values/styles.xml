@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
@@ -8,6 +8,8 @@
         <item name="android:actionBarTabTextStyle">@style/MyActionBarTabText</item>
         <item name="android:actionMenuTextColor">@color/light_text</item>
         <item name="android:windowBackground">@color/app_background</item>
+
+     <!--   <item name="android:alertDialogTheme">@style/AlertDialogCustomTheme</item> -->
 
         <!-- Support library compatibility -->
         <item name="actionBarStyle">@style/MyActionBar</item>
@@ -34,6 +36,11 @@
     <!-- ActionBar tabs text -->
     <style name="MyActionBarTabText"  parent="@style/Widget.AppCompat.ActionBar.TabText">
         <item name="android:textColor">@color/light_text</item>
+    </style>
+
+    <!-- Custom Alert Dialog -->
+    <style name="AlertDialogCustomTheme" android:parent="android:Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
     </style>
 
 </resources>

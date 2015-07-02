@@ -2,7 +2,9 @@ package com.epitech.hubinnovation.notifeed.activity;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -26,6 +28,7 @@ import android.widget.TextView;
 import com.epitech.hubinnovation.notifeed.Constants;
 import com.epitech.hubinnovation.notifeed.R;
 import com.epitech.hubinnovation.notifeed.item.User;
+import com.epitech.hubinnovation.notifeed.soap_request.Request;
 import com.epitech.hubinnovation.notifeed.tool.Tool;
 
 import java.io.ByteArrayOutputStream;
@@ -143,33 +146,50 @@ public class MainActivity extends ActionBarActivity
 
     void launchAlertDialog()
     {
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        /** Custom dialog */
+        final Dialog dialog = new Dialog(this);
+        dialog.setContentView(R.layout.custom_alertdialog);
+        dialog.setTitle(getResources().getString(R.string.disconnect_title));
 
-        alertDialogBuilder.setTitle(getResources().getString(R.string.disconnect_title));
+        /** Set the custom dialog components */
+        TextView text = (TextView) dialog.findViewById(R.id.dialog_content);
+        text.setText(getResources().getString(R.string.disconnect_text));
 
-        alertDialogBuilder
-                .setMessage(getResources().getString(R.string.disconnect_text))
-                .setCancelable(false)
-                .setPositiveButton(getResources().getString(R.string.btn_yes),new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        /** Launching default fragment */
-                        diplayConnexionView();
-                    }
-                })
-                .setNegativeButton(getResources().getString(R.string.btn_no),new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog,int id) {
-                        dialog.cancel();
-                    }
-                });
+        Button dialog_button_ok = (Button) dialog.findViewById(R.id.dialog_btn_ok);
+        dialog_button_ok.setText(getResources().getString(R.string.btn_yes));
+        dialog_button_ok.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
 
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+                /** Clean user account preferences */
+                removeSharedPreferences();
 
-        /** Set title divider color */
-        int titleDividerId = getResources().getIdentifier("titleDivider", "id", "android");
-        View titleDivider = findViewById(titleDividerId);
-        if (titleDivider != null)
-            titleDivider.setBackgroundColor(getResources().getColor(R.color.black));
+                /** Launching default fragment */
+                diplayConnexionView();
+
+                dialog.dismiss();
+            }
+        });
+        Button dialog_button_no = (Button) dialog.findViewById(R.id.dialog_btn_answer);
+        dialog_button_no.setText(getResources().getString(R.string.btn_no));
+        dialog_button_no.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.cancel();
+            }
+        });
+        dialog.show();
+    }
+
+    private void removeSharedPreferences()
+    {
+        SharedPreferences.Editor editor =  getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE).edit();
+
+        editor.putString(Constants.PREFERENCES_USER_LOGIN, null);
+        editor.putString(Constants.PREFERENCES_USER_PASSWORD, null);
+        editor.commit();
     }
 
     void openFeedbackBox()

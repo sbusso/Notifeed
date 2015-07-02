@@ -1,6 +1,8 @@
 package com.epitech.hubinnovation.notifeed.activity;
 
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -12,6 +14,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.epitech.hubinnovation.notifeed.Constants;
 import com.epitech.hubinnovation.notifeed.R;
 import com.epitech.hubinnovation.notifeed.item.User;
 import com.epitech.hubinnovation.notifeed.soap_request.Request;
@@ -22,12 +25,16 @@ import java.util.ArrayList;
 public class ConnexionFragment extends Fragment
 {
     /** Interface */
-    private Button connect          = null;
-    private TextView public_id      = null;
-    private TextView private_id     = null;
+    private Button connect              = null;
+    private TextView public_id          = null;
+    private TextView private_id         = null;
 
     /** Local */
-    private MainActivity activity   = null;
+    private MainActivity activity                       = null;
+    private RequestCallback.FragmentCallback callback   = null;
+
+    /** Shared Preferences */
+    SharedPreferences sharedpreferences = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -43,13 +50,17 @@ public class ConnexionFragment extends Fragment
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.fragment_connexion, null);
         setHasOptionsMenu(true);
 
+        /** Shared prefs initialisation */
+        sharedpreferences = activity.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE);
+
+        /** Init connection callback */
+        initConnectionCallback();
+
         /** Items initialisation */
         initInterface(root);
 
         /** Items behaviour */
         computeInterface();
-
-
 
         RequestCallback.FragmentCallback callback = new RequestCallback.FragmentCallback()
         {
@@ -59,10 +70,20 @@ public class ConnexionFragment extends Fragment
                 register_account_callback(result);
             }
         };
-        activity.showLoadingBar();
-        Request.getInstance().launch_request("register_account", callback, "assere_a", "cT,Jz6gs");
 
         return root;
+    }
+
+    void initConnectionCallback()
+    {
+        callback = new RequestCallback.FragmentCallback()
+        {
+            @Override
+            public void onTaskDone(Object result)
+            {
+                register_account_callback(result);
+            }
+        };
     }
 
     void initInterface(View view)
@@ -74,22 +95,39 @@ public class ConnexionFragment extends Fragment
 
     void computeInterface()
     {
+        /** Load shared preferences */
+        String login    = sharedpreferences.getString(Constants.PREFERENCES_USER_LOGIN, null);
+        String password = sharedpreferences.getString(Constants.PREFERENCES_USER_PASSWORD, null);
+
+        /** Check if existing account */
+        if (public_id != null && login != null)
+            public_id.setText(login);
+        if (private_id != null && password != null)
+            private_id.setText(password);
+        if (login != null && password != null &&
+                public_id != null && public_id.getText() != null && public_id.getText().equals("") == false &&
+                private_id != null && private_id.getText() != null && private_id.getText().equals("") == false)
+        {
+            activity.showLoadingBar();
+            Request.getInstance().launch_request("register_account", callback, public_id.getText().toString(), private_id.getText().toString());
+        }
+
         connect.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                RequestCallback.FragmentCallback callback = new RequestCallback.FragmentCallback()
-                {
-                    @Override
-                    public void onTaskDone(Object result)
-                    {
-                        register_account_callback(result);
-                    }
-                };
-                activity.showLoadingBar();
-                Request.getInstance().launch_request("register_account", callback, public_id.getText().toString(), private_id.getText().toString());
 
+                activity.showLoadingBar();
+
+                /** Update shared preferences*/
+                SharedPreferences.Editor editor = sharedpreferences.edit();
+                editor.putString(Constants.PREFERENCES_USER_LOGIN, public_id.getText().toString());
+                editor.putString(Constants.PREFERENCES_USER_PASSWORD, private_id.getText().toString());
+                editor.commit();
+
+                /** Call connection request */
+                Request.getInstance().launch_request("register_account", callback, public_id.getText().toString(), private_id.getText().toString());
             }
         });
     }
