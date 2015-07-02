@@ -24,6 +24,7 @@ import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.epitech.hubinnovation.notifeed.Constants;
 import com.epitech.hubinnovation.notifeed.R;
@@ -73,7 +74,7 @@ public class MainActivity extends ActionBarActivity
                                 if (User.getInstance().getAccKey() == null)
                                 {
                                     diplayConnexionView();
-                                    break;
+                                    Toast.makeText(getApplicationContext(), getResources().getString(R.string.msg_must_be_connected), Toast.LENGTH_LONG).show();
                                 }
                                 else
                                 {

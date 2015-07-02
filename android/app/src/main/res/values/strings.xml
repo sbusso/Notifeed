@@ -10,6 +10,9 @@
     <string name="btn_yes">Oui</string>
     <string name="btn_no">Non</string>
 
+    // Others
+    <string name="msg_must_be_connected">Vous devez être connecté</string>
+
     // Server response
     <string name="success_feedback">Message envoyé avec succès</string>
     <string name="error_timeout">Pas de connexion de données</string>
@@ -21,6 +24,7 @@
     <string name="connect_default_login">Login</string>
     <string name="connect_default_password">Password</string>
     <string name="connect_ok">Connexion</string>
+    <string name="connect_as">Connecté en tant que</string>
 
     // Activity Title
     <string name="title_feeds">Feeds</string>

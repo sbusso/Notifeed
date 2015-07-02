@@ -149,6 +149,7 @@ public class ConnexionFragment extends Fragment
             FragmentTransaction tx_0 = activity.getSupportFragmentManager().beginTransaction();
             tx_0.replace(R.id.main, tmp_0);
             tx_0.commit();
+            Toast.makeText(activity.getApplicationContext(), getResources().getString(R.string.connect_as) + " " + public_id.getText().toString(), Toast.LENGTH_LONG).show();
         }
         else
         {
