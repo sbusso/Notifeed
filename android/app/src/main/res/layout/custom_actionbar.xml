@@ -9,11 +9,10 @@
         android:layout_width="wrap_content"
         android:background="@null"
         android:scaleType="centerInside"
-        android:src="@drawable/ic_drawer"
-        android:paddingRight="50dp"
-        android:paddingTop="4dp"
-        android:layout_marginRight="-40dp"
-        android:layout_centerVertical="true" />
+        android:src="@drawable/menu_icon"
+        android:layout_centerVertical="true"
+        android:paddingRight="5dp"
+        android:layout_marginLeft="-10dp" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,7 +22,7 @@
         android:id="@+id/actionbar_title"
         android:gravity="center_vertical"
         android:textColor="@color/light_text"
-        android:textSize="20dp"
+        android:textSize="22dp"
         android:layout_centerVertical="true"
         android:layout_toRightOf="@+id/actionbar_btn"
         android:layout_toEndOf="@+id/actionbar_btn" />

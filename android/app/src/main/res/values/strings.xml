@@ -23,8 +23,10 @@
     // Connect Activity
     <string name="connect_default_login">Login</string>
     <string name="connect_default_password">Password</string>
-    <string name="connect_ok">Connexion</string>
+    <string name="connect_ok">CONTINUER</string>
     <string name="connect_as">Connecté en tant que</string>
+    <string name="connect_welcome_text">Bienvenue</string>
+    <string name="connect_welcome_text2">sur Notifeed</string>
 
     // Activity Title
     <string name="title_feeds">Feeds</string>
