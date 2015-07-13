@@ -16,16 +16,17 @@ public class Constants
     public static final int REQUEST_TIMEOUT_MILLISECONDS    = 10000;
 
     /** Server connection informations */
-    public static final String NAMESPACE = "http://notifeed.exanis.ovh";
-    public static final String SOAP_ACTION = "http://notifeed.exanis.ovh/#register_account";
-    public static final String URL = "http://notifeed.exanis.ovh/";
+    public static final String NAMESPACE    = "http://notifeed.exanis.ovh";
+    public static final String SOAP_ACTION  = "http://notifeed.exanis.ovh/#register_account";
+    public static final String URL          = "http://notifeed.exanis.ovh/";
 
 	/**
 	 * Preference data stored in the phone/tablet
 	 */
 	public static final String PREFERENCES 					= "PREFERENCES";
 	public static final String PREFERENCES_USER_LOGIN 	    = "PREFERENCES_USER_LOGIN";
-	public static final String PREFERENCES_USER_PASSWORD 	= "PREFERENCES_USER_PASSWORD";
+    public static final String PREFERENCES_USER_PASSWORD 	= "PREFERENCES_USER_PASSWORD";
+    public static final String PREFERENCES_FEEDS_LIST 	    = "PREFERENCES_FEEDS_LIST";
 
 	/** COUNTRY FORMAT ISO 3166-1 alpha-3  **/
 	public static final String COUNTRY_FRANCE_ISO3      = "FRA";

@@ -12,7 +12,8 @@ public class Feed
     private int nb_new_notification;
 
     /** Constructors */
-    private Feed() {}
+    private Feed()
+    { }
 
     public Feed(boolean subscribed, String name, int nb_new_notification, String id)
     {
@@ -21,6 +22,7 @@ public class Feed
         this.subscribed             = subscribed;
         this.nb_new_notification    = nb_new_notification;
     }
+
 
     /** Getters / Setters */
     public boolean isSubscribed()

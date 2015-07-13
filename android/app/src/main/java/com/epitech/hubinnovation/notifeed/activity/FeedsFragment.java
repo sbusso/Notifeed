@@ -1,5 +1,7 @@
 package com.epitech.hubinnovation.notifeed.activity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -19,8 +21,14 @@ import com.epitech.hubinnovation.notifeed.item.TmpFeedName;
 import com.epitech.hubinnovation.notifeed.item.User;
 import com.epitech.hubinnovation.notifeed.soap_request.Request;
 import com.epitech.hubinnovation.notifeed.soap_request.RequestCallback;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.sql.Connection;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 public class FeedsFragment extends Fragment
 {
@@ -41,6 +49,11 @@ public class FeedsFragment extends Fragment
     int feedsNameI                          = 0;
     int feedsFollowI                        = 0;
 
+    /** User preferences */
+    SharedPreferences mPrefs        = null;
+    ArrayList<String> jsonList      = null;
+    ArrayList<Feed> tmpFeedList     = null;
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
@@ -49,6 +62,8 @@ public class FeedsFragment extends Fragment
         activity    = (MainActivity)getActivity();
         feedsName   = new ArrayList<>();
         feedsFollow = new ArrayList<>();
+        mPrefs      = activity.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE);
+        retrieveFeedsInUserPrefs();
     }
 
     @Override
@@ -58,6 +73,24 @@ public class FeedsFragment extends Fragment
 
         if (activity != null)
             activity.getActionbarTitle().setText(getResources().getString(R.string.title_feeds));
+    }
+
+    private void retrieveFeedsInUserPrefs()
+    {
+        Gson gson               = new Gson();
+        String tmpJsonList      = mPrefs.getString(Constants.PREFERENCES_FEEDS_LIST, null);
+        if (tmpJsonList == null)
+            return;
+        Type listType           = new TypeToken<ArrayList<Feed>>(){}.getType();
+        tmpFeedList             = gson.fromJson(tmpJsonList, listType);
+    }
+
+    private void saveFeedsInUserPrefs()
+    {
+        SharedPreferences.Editor editor = mPrefs.edit();
+        String feedsJSONString          = new Gson().toJson(feedsList);
+        editor.putString(Constants.PREFERENCES_FEEDS_LIST, feedsJSONString);
+        editor.commit();
     }
 
     @Override
@@ -203,6 +236,7 @@ public class FeedsFragment extends Fragment
         {
             listview_feeds.setVisibility(View.VISIBLE);
             activity.hideLoadingBar();
+            saveFeedsInUserPrefs();
         }
     }
 
