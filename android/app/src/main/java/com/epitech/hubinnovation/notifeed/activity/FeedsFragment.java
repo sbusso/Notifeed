@@ -2,7 +2,11 @@ package com.epitech.hubinnovation.notifeed.activity;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,49 +25,90 @@ import com.epitech.hubinnovation.notifeed.item.TmpFeedName;
 import com.epitech.hubinnovation.notifeed.item.User;
 import com.epitech.hubinnovation.notifeed.soap_request.Request;
 import com.epitech.hubinnovation.notifeed.soap_request.RequestCallback;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.IOException;
 import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class FeedsFragment extends Fragment
-{
-    /** Layout */
-    RelativeLayout empty_feed       = null;
-    TextView empty_title            = null;
-    TextView empty_text             = null;
-    ListView listview_feeds	        = null;
-    FeedArrayAdapterItem adapter    = null;
+public class FeedsFragment extends Fragment {
+    /**
+     * Layout
+     */
+    RelativeLayout empty_feed = null;
+    TextView empty_title = null;
+    TextView empty_text = null;
+    ListView listview_feeds = null;
+    FeedArrayAdapterItem adapter = null;
 
-    /** Local */
-    ArrayList<Feed> feedsList       = null;
-    private MainActivity activity   = null;
+    /**
+     * Local
+     */
+    ArrayList<Feed> feedsList = null;
+    private MainActivity activity = null;
 
-    /** Temporary objects */
-    ArrayList<TmpFeedName> feedsName        = null;
-    ArrayList<TmpFeedFollow> feedsFollow    = null;
-    int feedsNameI                          = 0;
-    int feedsFollowI                        = 0;
+    /**
+     * Temporary objects
+     */
+    ArrayList<TmpFeedName> feedsName = null;
+    ArrayList<TmpFeedFollow> feedsFollow = null;
+    int feedsNameI = 0;
+    int feedsFollowI = 0;
 
-    /** User preferences */
-    SharedPreferences mPrefs        = null;
-    ArrayList<String> jsonList      = null;
-    ArrayList<Feed> tmpFeedList     = null;
+    /**
+     * User preferences
+     */
+    SharedPreferences mPrefs = null;
+    ArrayList<Feed> tmpFeedList = null;
+
+    /**
+     * Notifications
+     */
+    private GoogleCloudMessaging gcm    = null;
+    private String regid                = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
 
-        activity    = (MainActivity)getActivity();
+        activity    = (MainActivity) getActivity();
         feedsName   = new ArrayList<>();
         feedsFollow = new ArrayList<>();
+        feedsList   = new ArrayList<>();
         mPrefs      = activity.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE);
+
+        /** Notif initialisation */
+        initNotifRegistration();
+
+        /** User Preferences management */
         retrieveFeedsInUserPrefs();
+//        displayFeedsInUserPrefs();
+    }
+
+    void initNotifRegistration()
+    {
+        if (checkPlayServices())
+        {
+            gcm = GoogleCloudMessaging.getInstance(activity);
+            regid = getRegistrationId(activity.getApplicationContext());
+
+            if (regid.isEmpty())
+            {
+                registerInBackground();
+            }
+            else
+            {
+                Toast.makeText(activity.getApplicationContext(), "No valid Google Play Services APK found.", Toast.LENGTH_LONG).show();
+            }
+        }
     }
 
     @Override
@@ -72,25 +117,121 @@ public class FeedsFragment extends Fragment
         super.onResume();
 
         if (activity != null)
+        {
             activity.getActionbarTitle().setText(getResources().getString(R.string.title_feeds));
+        }
+        checkPlayServices();
+    }
+
+    private boolean checkPlayServices()
+    {
+        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(activity);
+        if (resultCode != ConnectionResult.SUCCESS)
+        {
+            if (GooglePlayServicesUtil.isUserRecoverableError(resultCode))
+            {
+                GooglePlayServicesUtil.getErrorDialog(resultCode, activity, Constants.NOTIFICATION_PLAY_SERVICES_RESOLUTION_REQUEST).show();
+            }
+            else
+            {
+                Toast.makeText(activity.getApplicationContext(), "Application not supported", Toast.LENGTH_LONG).show();
+                activity.finish();
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private String getRegistrationId(Context context)
+    {
+        final SharedPreferences prefs = getGCMPreferences(context);
+        String registrationId = prefs.getString(Constants.PREFERENCES_PROPERTY_REG_ID, "");
+        if (registrationId.isEmpty()) {
+            Toast.makeText(activity.getApplicationContext(), "Registration ID not found.", Toast.LENGTH_LONG).show();
+            return "";
+        }
+        int registeredVersion = prefs.getInt(Constants.PREFERENCES_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+        int currentVersion = getAppVersion(context);
+        if (registeredVersion != currentVersion) {
+            Toast.makeText(activity.getApplicationContext(), "App version changed.", Toast.LENGTH_LONG).show();
+            return "";
+        }
+        return registrationId;
+    }
+
+    private SharedPreferences getGCMPreferences(Context context)
+    {
+        return activity.getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
+    }
+
+    private static int getAppVersion(Context context)
+    {
+        try
+        {
+            PackageInfo packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+            return packageInfo.versionCode;
+        }
+        catch (PackageManager.NameNotFoundException e)
+        {
+            throw new RuntimeException("Could not get package name: " + e);
+        }
+    }
+
+    private void registerInBackground()
+    {     new AsyncTask() {
+        @Override
+        protected Object doInBackground(Object... params)
+        {
+            String msg = "";
+            try
+            {
+                if (gcm == null)
+                {
+                    gcm = GoogleCloudMessaging.getInstance(activity.getApplicationContext());
+                }
+                regid = gcm.register(Constants.NOTIFICATION_SENDER_ID);
+
+            //    Toast.makeText(activity.getApplicationContext(), "Current Device's Registration ID is: " + msg, Toast.LENGTH_LONG).show();
+            }
+            catch (IOException ex)
+            {
+                msg = "Error :" + ex.getMessage();
+            }
+            return null;
+        }
+
+        protected void onPostExecute(Object result)
+        {
+            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
+            SharedPreferences.Editor editor = prefs.edit();
+            editor.putString(Constants.PREFERENCES_PROPERTY_REG_ID, regid);
+            editor.commit();
+        };
+
+    }.execute(null, null, null);
     }
 
     private void retrieveFeedsInUserPrefs()
     {
-        Gson gson               = new Gson();
-        String tmpJsonList      = mPrefs.getString(Constants.PREFERENCES_FEEDS_LIST, null);
+        Gson gson = new Gson();
+        String tmpJsonList = mPrefs.getString(Constants.PREFERENCES_FEEDS_LIST, null);
         if (tmpJsonList == null)
             return;
-        Type listType           = new TypeToken<ArrayList<Feed>>(){}.getType();
-        tmpFeedList             = gson.fromJson(tmpJsonList, listType);
+        Type listType = new TypeToken<ArrayList<Feed>>() { }.getType();
+        tmpFeedList = gson.fromJson(tmpJsonList, listType);
     }
 
     private void saveFeedsInUserPrefs()
     {
         SharedPreferences.Editor editor = mPrefs.edit();
-        String feedsJSONString          = new Gson().toJson(feedsList);
+        String feedsJSONString = new Gson().toJson(feedsList);
         editor.putString(Constants.PREFERENCES_FEEDS_LIST, feedsJSONString);
         editor.commit();
+    }
+
+    private void displayFeedsInUserPrefs()
+    {
+        computeInterface(tmpFeedList);
     }
 
     @Override
@@ -102,6 +243,11 @@ public class FeedsFragment extends Fragment
 
         /** Init Feed interface */
         initInterface(root);
+
+        /** Display saves feeds */
+        displayFeedsInUserPrefs();
+//        if (tmpFeedList != null && tmpFeedList.size() > 0)
+//            listview_feeds.setVisibility(View.VISIBLE);
 
         /** Get Feed list */
         RequestCallback.FragmentCallback callback = new RequestCallback.FragmentCallback()
@@ -121,7 +267,6 @@ public class FeedsFragment extends Fragment
     private void list_feed_callback(Object result)
     {
         String[] list_feed  = (String[])result;
-        feedsList           = new ArrayList<>();
 
         /** Get Feed */
         RequestCallback.FragmentCallback callback_get_feed = new RequestCallback.FragmentCallback()
@@ -159,7 +304,7 @@ public class FeedsFragment extends Fragment
         }
 
         /** Compute infos */
-        computeInterface();
+        computeInterface(feedsList);
     }
 
     private void get_feed_callback(Object result)
@@ -234,7 +379,7 @@ public class FeedsFragment extends Fragment
     {
         if (feedsList.size() == feedsFollowI && feedsList.size() == feedsNameI)
         {
-            listview_feeds.setVisibility(View.VISIBLE);
+//            listview_feeds.setVisibility(View.VISIBLE);
             activity.hideLoadingBar();
             saveFeedsInUserPrefs();
         }
@@ -248,14 +393,14 @@ public class FeedsFragment extends Fragment
         listview_feeds  = (ListView) root.findViewById(R.id.list_feeds);
     }
 
-    private void computeInterface()
+    private void computeInterface(ArrayList<Feed> list)
     {
-        if (feedsList != null && feedsList.size() > 0)
+        if (list != null && list.size() > 0)
         {
             empty_feed.setVisibility(View.INVISIBLE);
-            listview_feeds.setVisibility(View.INVISIBLE);
+            listview_feeds.setVisibility(View.VISIBLE);
 
-            adapter = new FeedArrayAdapterItem(activity, feedsList, this, listview_feeds);
+            adapter = new FeedArrayAdapterItem(activity, list, this, listview_feeds);
             listview_feeds.setAdapter(adapter);
         }
         else

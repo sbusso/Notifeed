@@ -1,19 +1,16 @@
 package com.epitech.hubinnovation.notifeed;
 
-import java.text.SimpleDateFormat;
-import android.annotation.SuppressLint;
 
 /**
  * 
  * @author rodolphe.assere
  *
  */
-@SuppressLint("SimpleDateFormat")
 public class Constants
 {
     /** Global */
     public static final int TWEET_LENGTH                    = 140;
-    public static final int REQUEST_TIMEOUT_MILLISECONDS    = 10000;
+    public static final int REQUEST_TIMEOUT_MILLISECONDS    = 5000;
 
     /** Server connection informations */
     public static final String NAMESPACE    = "http://notifeed.exanis.ovh";
@@ -23,10 +20,12 @@ public class Constants
 	/**
 	 * Preference data stored in the phone/tablet
 	 */
-	public static final String PREFERENCES 					= "PREFERENCES";
-	public static final String PREFERENCES_USER_LOGIN 	    = "PREFERENCES_USER_LOGIN";
-    public static final String PREFERENCES_USER_PASSWORD 	= "PREFERENCES_USER_PASSWORD";
-    public static final String PREFERENCES_FEEDS_LIST 	    = "PREFERENCES_FEEDS_LIST";
+	public static final String PREFERENCES 					    = "PREFERENCES";
+	public static final String PREFERENCES_USER_LOGIN 	        = "PREFERENCES_USER_LOGIN";
+    public static final String PREFERENCES_USER_PASSWORD 	    = "PREFERENCES_USER_PASSWORD";
+    public static final String PREFERENCES_FEEDS_LIST 	        = "PREFERENCES_FEEDS_LIST";
+    public static final String PREFERENCES_PROPERTY_REG_ID      = "PREFERENCES_REGISTRATION_ID";
+    public static final String PREFERENCES_PROPERTY_APP_VERSION = "PREFERENCES_APPVERSION";
 
 	/** COUNTRY FORMAT ISO 3166-1 alpha-3  **/
 	public static final String COUNTRY_FRANCE_ISO3      = "FRA";
@@ -51,7 +50,7 @@ public class Constants
     public static final String MONTH_APRIL              = "Avril";
     public static final String MONTH_MAY                = "Mai";
     public static final String MONTH_JUNE               = "Juin";
-    public static final String MONTH_JULY               = "July";
+    public static final String MONTH_JULY               = "Juillet";
     public static final String MONTH_AUGUST             = "Août";
     public static final String MONTH_SEPTEMBER          = "Septembre";
     public static final String MONTH_OCTOBER            = "Octobre";
@@ -75,11 +74,6 @@ public class Constants
 	/**
 	 * Notifications
 	 */
-	public static final int NOTIFICATION_HTTP_REQUEST_FAILURE               = 999000;
-	public static final int NOTIFICATION_DIALOGS_LOADED                     = 999001;
-	public static final int NOTIFICATION_NEW_MESSAGES_COUNTER_SUCCESSFULL   = 999002;
-	public static final int NOTIFICATION_NEW_MESSAGES_LOADED                = 999003;
-	public static final int NOTIFICATION_MESSAGE_SENT                       = 999008;
-	public static final int NOTIFICATION_DIALOG_DELETED                     = 999009;
-	public static final int NOTIFICATION_DIALOG_UPDATED                     = 999010;
+    public static final String NOTIFICATION_SENDER_ID                       = "124659942760";
+    public static final int NOTIFICATION_PLAY_SERVICES_RESOLUTION_REQUEST  = 9000;
 }
