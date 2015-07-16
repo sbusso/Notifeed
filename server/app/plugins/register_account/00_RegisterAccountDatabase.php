@@ -19,7 +19,7 @@ if (!class_exists('RegisterAccountDatabase'))
                 $password = $table->select([
                     'acc_key' => $acc_key,
                     'info_key' => 'password'
-                ]);
+                ])->current();
                 if (password_verify($id_password, $password->info_value))
                     return $acc_key;
             }

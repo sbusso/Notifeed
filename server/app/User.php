@@ -6,15 +6,16 @@ class User {
      * 
      * @param string $id_device
      * @param string $type_device
+     * @param string $app_key Application key. The meaning of this value may vary depending of type_device.
      * @param string $acc_key
      * @return boolean
      */
-    public function register_device($id_device, $type_device, $acc_key)
+    public function register_device($id_device, $type_device, $app_key, $acc_key)
     {
         $table = new Zend\Db\TableGateway\TableGateway('User_Device', include 'app/db.php');
         
         try {
-            $table->insert(['device_type' => $type_device, 'device_key' => $id_device, 'acc_key' => $acc_key]);
+            $table->insert(['device_type' => $type_device, 'device_key' => $id_device, 'acc_key' => $acc_key, 'app_key' => $app_key]);
             return true;
         } catch (Exception $e)
         {
@@ -41,7 +42,7 @@ class User {
                 return $acc_key;
             }
         }
-        return '';
+        return 'Invalid username or password';
     }
     
     /**
@@ -106,6 +107,9 @@ class User {
     {
         $adapter = include 'app/db.php';
         
+        if ($this->_isAdmin($acc_key))
+            return true;
+            
         $stmt = $adapter->createStatement('SELECT f.feed_id FROM Feed_Group f LEFT JOIN User_Group ug ON ug.group_id = f.group_id WHERE ug.acc_key = ? AND f.feed_id = ?');
         $vals = $stmt->execute([$acc_key, $feed_id]);
         return (count($vals) > 0);
@@ -142,7 +146,10 @@ class User {
             
             $stmt = $adapter->createStatement('SELECT `id`, `content`, `date` FROM `Notif` WHERE `feed_id` = ? ORDER BY `date` DESC');
             $vals = $stmt->execute([$feed_id]);
-            return $vals;
+            $valsArr = [];
+            foreach ($vals as $val)
+                $valsArr[] = $val;
+            return $valsArr;
         }
         return [];
     }
@@ -162,7 +169,7 @@ class User {
             
             $stmt = $adapter->createStatement('SELECT `name` FROM `Feed` WHERE `id` = ?');
             $vals = $stmt->execute([$feed_id]);
-            return $vals[0]['name'];
+            return $vals->current()['name'];
         }
         return '';
     }
@@ -200,7 +207,7 @@ class User {
     {
         $adapter = include 'app/db.php';
         
-        $stmt = $adapter->prepareStatement('DELETE FROM User_Feed WHERE acc_key = ? AND feed_id = ?');
+        $stmt = $adapter->createStatement('DELETE FROM User_Feed WHERE acc_key = ? AND feed_id = ?');
         $stmt->execute([$acc_key, $feed_id]);
         return true;
     }
@@ -244,6 +251,17 @@ class User {
     }
     
     /**
+     * Check if a given key is an admin key.
+     * 
+     * @param string $acc_key_admin
+     * @return boolean
+     */
+    public function is_admin_key($acc_key_admin)
+    {
+        return ($this->_isAdmin($acc_key_admin));
+    }
+    
+    /**
      * List every acc_key. Admin function.
      * 
      * @param string $acc_key_admin
@@ -254,7 +272,7 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->prepareStatement('SELECT acc_key FROM User WHERE 1');
+            $stmt = $adapter->createStatement('SELECT acc_key FROM User WHERE 1');
             $list = [];
             $vals = $stmt->execute();
             foreach ($vals as $val)
@@ -284,7 +302,7 @@ class User {
                 'admin' => $user->admin
             ];
             
-            $infosStatement = $adapter->prepareStatement('SELECT info_key, info_value FROM User_Infos WHERE acc_key = ?');
+            $infosStatement = $adapter->createStatement('SELECT info_key, info_value FROM User_Infos WHERE acc_key = ?');
             $infos = $infosStatement->execute([$acc_key]);
             
             foreach ($infos as $info)
@@ -349,7 +367,7 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->prepareStatement('SELECT id FROM Group WHERE 1');
+            $stmt = $adapter->createStatement('SELECT id FROM Group WHERE 1');
             $list = [];
             $vals = $stmt->execute();
             
@@ -374,7 +392,7 @@ class User {
         {
             $adapter = include 'app/db.php';
             
-            $stmt = $adapter->prepareStatement('UPDATE Group SET name = ? WHERE id = ?');
+            $stmt = $adapter->createStatement('UPDATE Group SET name = ? WHERE id = ?');
             $stmt->execute([$name, $group_id]);
             return true;
         }
@@ -394,7 +412,7 @@ class User {
         {
             $adapter = include 'app/db.php';
             
-            $stmt = $adapter->prepareStatement('DELETE FROM Group WHERE id = ?');
+            $stmt = $adapter->createStatement('DELETE FROM Group WHERE id = ?');
             $stmt->execute([$group_id]);
             return true;
         }
@@ -465,7 +483,7 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->prepareStatement('SELECT group_id FROM User_Group WHERE acc_key = ?');
+            $stmt = $adapter->createStatement('SELECT group_id FROM User_Group WHERE acc_key = ?');
             $vals = $stmt->execute([$acc_key]);
             $list = [];
             foreach ($vals as $val)
@@ -487,7 +505,7 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->prepareStatement('SELECT acc_key FROM User_Group WHERE group_id = ?');
+            $stmt = $adapter->createStatement('SELECT acc_key FROM User_Group WHERE group_id = ?');
             $vals = $stmt->execute([$group_id]);
             $list = [];
             foreach ($vals as $val)
@@ -583,7 +601,7 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->prepareStatement('SELECT group_id FROM Feed_Group WHERE feed_id = ?');
+            $stmt = $adapter->createStatement('SELECT group_id FROM Feed_Group WHERE feed_id = ?');
             $vals = $stmt->execute([$feed_id]);
             $list = [];
             foreach ($vals as $val)
@@ -683,7 +701,7 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->prepareStatement('INSERT INTO User_Infos (acc_key, info_key, info_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE info_value = ?');
+            $stmt = $adapter->createStatement('INSERT INTO User_Infos (acc_key, info_key, info_value) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE info_value = ?');
             $stmt->execute([$acc_key, $info_key, $info_value, $info_value]);
             return true;
         }
@@ -741,8 +759,12 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->prepareStatement('SELECT acc_key, content FROM Comment WHERE notif_id = ? ORDER BY id DESC');
-            return $stmt->execute([$notif_id]);
+            $stmt = $adapter->createStatement('SELECT acc_key, content FROM Comment WHERE notif_id = ? ORDER BY id DESC');
+            $listObj = $stmt->execute([$notif_id]);
+            $list = [];
+            foreach ($listObj as $elem)
+                $list[] = $elem;
+            return $list;
         }
         return [];
     }
@@ -772,9 +794,9 @@ class User {
                 'feed_id' => $feed_id,
                 'content' => $message
             ]);
-            $plugins = glob('app/plugins/register_account/*.php');
+            $plugins = glob('app/plugins/publish/*.php');
             
-            $stmt = $adapter->prepareStatement('SELECT d.device_key, d.device_type FROM User_Device d LEFT JOIN User_Feed f ON f.acc_key = d.acc_key WHERE f.feed_id = ?');
+            $stmt = $adapter->createStatement('SELECT d.device_key, d.device_type, d.app_key FROM User_Device d LEFT JOIN User_Feed f ON f.acc_key = d.acc_key WHERE f.feed_id = ?');
             $list = $stmt->execute([$feed_id]);
             
             foreach ($list as $device)
@@ -782,7 +804,7 @@ class User {
                 foreach ($plugins as $plugin)
                 {
                     $tool = include $plugin;
-                    if (($acc_key = $tool->notify($device['device_type'], $device['device_key'], $message)))
+                    if (($acc_key = $tool->notify($device['device_type'], $device['device_key'], $device['app_key'], $feed->name, $message)))
                         break;
                 }
             }
