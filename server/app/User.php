@@ -297,10 +297,7 @@ class User {
             $userTable = new \Zend\Db\TableGateway\TableGateway('User', $adapter, new Zend\Db\TableGateway\Feature\RowGatewayFeature('acc_key'), new Zend\Db\ResultSet\ResultSet());
             $user = $userTable->select(['acc_key' => $acc_key])->current();
             
-            $datas = [
-                'acc_key' => $acc_key,
-                'admin' => $user->admin
-            ];
+            $datas = [];
             
             $infosStatement = $adapter->createStatement('SELECT info_key, info_value FROM User_Infos WHERE acc_key = ?');
             $infos = $infosStatement->execute([$acc_key]);
@@ -367,7 +364,7 @@ class User {
         if ($this->_isAdmin($acc_key_admin))
         {
             $adapter = include 'app/db.php';
-            $stmt = $adapter->createStatement('SELECT id FROM Group WHERE 1');
+            $stmt = $adapter->createStatement('SELECT id FROM `Group` WHERE 1');
             $list = [];
             $vals = $stmt->execute();
             
@@ -392,7 +389,7 @@ class User {
         {
             $adapter = include 'app/db.php';
             
-            $stmt = $adapter->createStatement('UPDATE Group SET name = ? WHERE id = ?');
+            $stmt = $adapter->createStatement('UPDATE `Group` SET name = ? WHERE id = ?');
             $stmt->execute([$name, $group_id]);
             return true;
         }
@@ -412,7 +409,7 @@ class User {
         {
             $adapter = include 'app/db.php';
             
-            $stmt = $adapter->createStatement('DELETE FROM Group WHERE id = ?');
+            $stmt = $adapter->createStatement('DELETE FROM `Group` WHERE id = ?');
             $stmt->execute([$group_id]);
             return true;
         }
