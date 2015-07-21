@@ -1,17 +1,23 @@
 package com.epitech.hubinnovation.notifeed.activity;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,20 +29,19 @@ import com.epitech.hubinnovation.notifeed.item.Feed;
 import com.epitech.hubinnovation.notifeed.item.TmpFeedFollow;
 import com.epitech.hubinnovation.notifeed.item.TmpFeedName;
 import com.epitech.hubinnovation.notifeed.item.User;
+import com.epitech.hubinnovation.notifeed.notification.RegistrationIntentService;
 import com.epitech.hubinnovation.notifeed.soap_request.Request;
 import com.epitech.hubinnovation.notifeed.soap_request.RequestCallback;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.gms.iid.InstanceID;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 
 public class FeedsFragment extends Fragment {
     /**
@@ -71,8 +76,10 @@ public class FeedsFragment extends Fragment {
     /**
      * Notifications
      */
-    private GoogleCloudMessaging gcm    = null;
-    private String regid                = null;
+    private GoogleCloudMessaging gcm                            = null;
+    private String device_token                                 = null;
+    private String device_id                                    = null;
+    private BroadcastReceiver mRegistrationBroadcastReceiver    = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -84,6 +91,26 @@ public class FeedsFragment extends Fragment {
         feedsFollow = new ArrayList<>();
         feedsList   = new ArrayList<>();
         mPrefs      = activity.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE);
+        device_id   = Settings.Secure.getString(activity.getApplicationContext().getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        mRegistrationBroadcastReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                SharedPreferences sharedPreferences =
+                        PreferenceManager.getDefaultSharedPreferences(context);
+                boolean sentToken = sharedPreferences.getBoolean(Constants.NOTIFICATION_SENT_TOKEN_TO_SERVER, false);
+                if (sentToken)
+                {
+                    Toast.makeText(activity.getApplicationContext(), "Token OK", Toast.LENGTH_LONG).show();
+                }
+                else
+                {
+                    Toast.makeText(activity.getApplicationContext(), "Token KO", Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+
+
 
         /** Notif initialisation */
         initNotifRegistration();
@@ -97,17 +124,8 @@ public class FeedsFragment extends Fragment {
     {
         if (checkPlayServices())
         {
-            gcm = GoogleCloudMessaging.getInstance(activity);
-            regid = getRegistrationId(activity.getApplicationContext());
-
-            if (regid.isEmpty())
-            {
-                registerInBackground();
-            }
-            else
-            {
-                Toast.makeText(activity.getApplicationContext(), "No valid Google Play Services APK found.", Toast.LENGTH_LONG).show();
-            }
+            Intent intent = new Intent(activity, RegistrationIntentService.class);
+            activity.startService(intent);
         }
     }
 
@@ -115,12 +133,18 @@ public class FeedsFragment extends Fragment {
     public void onResume()
     {
         super.onResume();
-
+        LocalBroadcastManager.getInstance(activity).registerReceiver(mRegistrationBroadcastReceiver, new IntentFilter(Constants.NOTIFICATION_REGISTRATION_COMPLETE));
         if (activity != null)
         {
             activity.getActionbarTitle().setText(getResources().getString(R.string.title_feeds));
         }
-        checkPlayServices();
+    }
+
+    @Override
+    public void onPause()
+    {
+        LocalBroadcastManager.getInstance(activity).unregisterReceiver(mRegistrationBroadcastReceiver);
+        super.onPause();
     }
 
     private boolean checkPlayServices()
@@ -144,24 +168,19 @@ public class FeedsFragment extends Fragment {
 
     private String getRegistrationId(Context context)
     {
-        final SharedPreferences prefs = getGCMPreferences(context);
-        String registrationId = prefs.getString(Constants.PREFERENCES_PROPERTY_REG_ID, "");
-        if (registrationId.isEmpty()) {
+        final SharedPreferences prefs = activity.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE);
+        String registrationId = prefs.getString(Constants.PREFERENCES_PROPERTY_DEVICE_TOKEN, null);
+        if (registrationId != null && registrationId.isEmpty()) {
             Toast.makeText(activity.getApplicationContext(), "Registration ID not found.", Toast.LENGTH_LONG).show();
             return "";
         }
-        int registeredVersion = prefs.getInt(Constants.PREFERENCES_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
-        int currentVersion = getAppVersion(context);
-        if (registeredVersion != currentVersion) {
-            Toast.makeText(activity.getApplicationContext(), "App version changed.", Toast.LENGTH_LONG).show();
-            return "";
-        }
+//        int registeredVersion = prefs.getInt(Constants.PREFERENCES_PROPERTY_APP_VERSION, Integer.MIN_VALUE);
+//        int currentVersion = getAppVersion(context);
+//        if (registeredVersion != currentVersion) {
+//            Toast.makeText(activity.getApplicationContext(), "App version changed.", Toast.LENGTH_LONG).show();
+//            return "";
+//        }
         return registrationId;
-    }
-
-    private SharedPreferences getGCMPreferences(Context context)
-    {
-        return activity.getSharedPreferences(MainActivity.class.getSimpleName(), Context.MODE_PRIVATE);
     }
 
     private static int getAppVersion(Context context)
@@ -189,9 +208,11 @@ public class FeedsFragment extends Fragment {
                 {
                     gcm = GoogleCloudMessaging.getInstance(activity.getApplicationContext());
                 }
-                regid = gcm.register(Constants.NOTIFICATION_SENDER_ID);
+                InstanceID instanceID = InstanceID.getInstance(activity);
+                device_token = instanceID.getToken(Constants.NOTIFICATION_SENDER_ID, GoogleCloudMessaging.INSTANCE_ID_SCOPE, null);
 
-            //    Toast.makeText(activity.getApplicationContext(), "Current Device's Registration ID is: " + msg, Toast.LENGTH_LONG).show();
+
+                //    Toast.makeText(activity.getApplicationContext(), "Current Device's Registration ID is: " + msg, Toast.LENGTH_LONG).show();
             }
             catch (IOException ex)
             {
@@ -202,10 +223,10 @@ public class FeedsFragment extends Fragment {
 
         protected void onPostExecute(Object result)
         {
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext());
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putString(Constants.PREFERENCES_PROPERTY_REG_ID, regid);
+            SharedPreferences.Editor editor = activity.getSharedPreferences(Constants.PREFERENCES, Context.MODE_PRIVATE).edit();
+            editor.putString(Constants.PREFERENCES_PROPERTY_DEVICE_TOKEN, device_token);
             editor.commit();
+            registerDeviceOnServer();
         };
 
     }.execute(null, null, null);
@@ -232,6 +253,22 @@ public class FeedsFragment extends Fragment {
     private void displayFeedsInUserPrefs()
     {
         computeInterface(tmpFeedList);
+    }
+
+    private void registerDeviceOnServer()
+    {
+        /** Callback initialisation */
+        RequestCallback.FragmentCallback callback = new RequestCallback.FragmentCallback()
+        {
+            @Override
+            public void onTaskDone(Object result)
+            {
+                register_device_callback(result);
+            }
+        };
+
+        /** Register device for notifications */
+        Request.getInstance().launch_request("register_device", callback, device_token, Constants.DEVICE_TYPE, Constants.NOTIFICATION_APP_KEY, User.getInstance().getAccKey());
     }
 
     @Override
@@ -262,6 +299,15 @@ public class FeedsFragment extends Fragment {
         Request.getInstance().launch_request("list_feed", callback, User.getInstance().getAccKey());
 
         return root;
+    }
+
+    public void register_device_callback(Object result)
+    {
+        //Boolean answer  = (Boolean)result;
+        String answer = result.toString();
+
+        if (answer != null)// && answer.booleanValue() == false)
+            Toast.makeText(activity.getApplicationContext(), "Failed to register_device", Toast.LENGTH_LONG).show();
     }
 
     private void list_feed_callback(Object result)

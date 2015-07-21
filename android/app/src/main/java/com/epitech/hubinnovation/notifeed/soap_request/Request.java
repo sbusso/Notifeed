@@ -11,6 +11,7 @@ import com.epitech.hubinnovation.notifeed.soap_object.SoapGetFeed;
 import com.epitech.hubinnovation.notifeed.soap_object.SoapGetHistory;
 import com.epitech.hubinnovation.notifeed.soap_object.SoapIsFollowingFeed;
 import com.epitech.hubinnovation.notifeed.soap_object.SoapListFeed;
+import com.epitech.hubinnovation.notifeed.soap_object.SoapRegisterDevice;
 import com.epitech.hubinnovation.notifeed.soap_object.SoapUnfollowFeed;
 import com.epitech.hubinnovation.notifeed.tool.Tool;
 
@@ -114,6 +115,74 @@ public class Request
             e.printStackTrace();
         }
         return (acc.getOut_account_key());
+    }
+
+    public Object register_device(String device_id, String device_type, String app_key, String acc_key)
+    {
+        String METHOD_NAME = "register_device";
+
+        SoapObject Request = new SoapObject(Constants.NAMESPACE, METHOD_NAME);
+
+        /**
+         * Create Account with Id to be passed as an argument
+         *
+         * */
+        SoapRegisterDevice acc = new SoapRegisterDevice(device_id, device_type, app_key, acc_key);
+
+        /**
+         * Set the category to be the argument of the web service method
+         *
+         * */
+        PropertyInfo pi = new PropertyInfo();
+        pi.setName("device_id");
+        pi.setValue(acc.getIn_device_id());
+        pi.setType(acc.getClass());
+        PropertyInfo pi2 = new PropertyInfo();
+        pi2.setName("device_type");
+        pi2.setValue(acc.getIn_device_type());
+        pi2.setType(acc.getClass());
+        PropertyInfo pi3 = new PropertyInfo();
+        pi3.setName("app_key");
+        pi3.setValue(acc.getIn_app_key());
+        pi3.setType(acc.getClass());
+        PropertyInfo pi4 = new PropertyInfo();
+        pi4.setName("acc_key");
+        pi4.setValue(acc.getIn_acc_key());
+        pi4.setType(acc.getClass());
+        Request.addProperty(pi);
+        Request.addProperty(pi2);
+        Request.addProperty(pi3);
+        Request.addProperty(pi4);
+
+        /**
+         * Set the web service envelope
+         *
+         * */
+        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
+        envelope.dotNet = true;
+        envelope.setOutputSoapObject(Request);
+
+        envelope.addMapping(Constants.NAMESPACE, "RegisterDevice", new SoapRegisterDevice().getClass());
+        HttpTransportSE androidHttpTransport = new HttpTransportSE(Constants.URL, Constants.REQUEST_TIMEOUT_MILLISECONDS);
+
+        /**
+         * Call the web service and retrieve result ... how luvly <3
+         *
+         * */
+        try
+        {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            androidHttpTransport.call(Constants.SOAP_ACTION, envelope);
+            SoapObject response = (SoapObject) envelope.bodyIn;
+            String tmp = response.getPropertyAsString(0);
+            acc.setOut_device_success(Boolean.parseBoolean(tmp));
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        return (acc.getOut_device_success());
     }
 
     public Object list_feed(String acc_key)

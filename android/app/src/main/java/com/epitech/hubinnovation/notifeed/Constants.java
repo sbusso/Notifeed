@@ -9,6 +9,7 @@ package com.epitech.hubinnovation.notifeed;
 public class Constants
 {
     /** Global */
+    public static final String DEVICE_TYPE                  = "android";
     public static final int TWEET_LENGTH                    = 140;
     public static final int REQUEST_TIMEOUT_MILLISECONDS    = 5000;
 
@@ -20,12 +21,12 @@ public class Constants
 	/**
 	 * Preference data stored in the phone/tablet
 	 */
-	public static final String PREFERENCES 					    = "PREFERENCES";
-	public static final String PREFERENCES_USER_LOGIN 	        = "PREFERENCES_USER_LOGIN";
-    public static final String PREFERENCES_USER_PASSWORD 	    = "PREFERENCES_USER_PASSWORD";
-    public static final String PREFERENCES_FEEDS_LIST 	        = "PREFERENCES_FEEDS_LIST";
-    public static final String PREFERENCES_PROPERTY_REG_ID      = "PREFERENCES_REGISTRATION_ID";
-    public static final String PREFERENCES_PROPERTY_APP_VERSION = "PREFERENCES_APPVERSION";
+	public static final String PREFERENCES 					        = "PREFERENCES";
+	public static final String PREFERENCES_USER_LOGIN 	            = "PREFERENCES_USER_LOGIN";
+    public static final String PREFERENCES_USER_PASSWORD 	        = "PREFERENCES_USER_PASSWORD";
+    public static final String PREFERENCES_FEEDS_LIST 	            = "PREFERENCES_FEEDS_LIST";
+    public static final String PREFERENCES_PROPERTY_DEVICE_TOKEN    = "PREFERENCES_DEVICE_TOKEN";
+    public static final String PREFERENCES_PROPERTY_APP_VERSION     = "PREFERENCES_APPVERSION";
 
 	/** COUNTRY FORMAT ISO 3166-1 alpha-3  **/
 	public static final String COUNTRY_FRANCE_ISO3      = "FRA";
@@ -74,6 +75,9 @@ public class Constants
 	/**
 	 * Notifications
 	 */
+    public static final String NOTIFICATION_SENT_TOKEN_TO_SERVER            = "sentTokenToServer";
+    public static final String NOTIFICATION_REGISTRATION_COMPLETE           = "registrationComplete";
     public static final String NOTIFICATION_SENDER_ID                       = "124659942760";
-    public static final int NOTIFICATION_PLAY_SERVICES_RESOLUTION_REQUEST  = 9000;
+    public static final String NOTIFICATION_APP_KEY                         = "AIzaSyCYpsbumXsxP3wHQw9YeeNVYdVTGpYbWfM";
+    public static final int NOTIFICATION_PLAY_SERVICES_RESOLUTION_REQUEST   = 9000;
 }
