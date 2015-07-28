@@ -1,0 +1,51 @@
+<h1><?php echo $this->feed; ?></h1>
+
+<form class="alert alert-success" role="form" method="post" action="/application/index/publish">
+    <input class="form-control input-lg" name="content" placeholder="Publier un nouveau message" maxlength="140" /><br />
+    <button class="btn btn-info btn-lg btn-block" type="submit">Envoyer</button>    
+</form>
+
+<?php foreach ($this->news as $news) { ?>
+<div class="alert alert-info" onclick="show(<?php echo $news['id']; ?>);">
+    <div class="pull-right">
+        <div class="badge"><i class="glyphicon glyphicon-eye-open"></i> <?php echo $news['read']; ?></div>
+        <div class="badge"><i class="glyphicon glyphicon-comment"></i> <?php echo count($news['com']); ?></div>
+    </div>
+    <?php echo $news['content']; ?>
+    <ul class="list-group hidden" id="feed-<?php echo $news['id']; ?>">
+        <li class="list-group-item-heading list-group-item list-group-item-text"><?php echo $news['date']; ?></li>
+        <?php foreach ($news['com'] as $comment) { ?>
+        <li class="list-group-item list-group-item-text"><?php echo $comment['content']; ?> <div class="pull-right small"><?php echo $comment['acc_key']; ?></div></li>
+        <?php } ?>
+    </ul>
+</div>
+<?php } ?>
+
+<nav class="text-center">
+    <ul class="pagination">
+        <?php if ($page > 0) { ?>
+        <li>
+            <a href="/feed/<?php echo $id; ?>/<?php echo $page - 1; ?>" aria-label="Précédent">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <?php } ?>
+        <?php for ($i = 1; $i <= $total; $i++) { ?>
+        <li><a href="/feed/<?php echo $id; ?>/<?php echo $i - 1; ?>"<?php if ($i - 1 === $page) echo ' class="active"'; ?>><?php echo $i; ?></a></li>
+        <?php } ?>
+        <?php if ($page < ($total - 1)) { ?>
+        <li>
+            <a href="/feed/<?php echo $id; ?>/<?php echo $page + 1; ?>" aria-label="Suivant">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        <?php } ?>
+    </ul>
+</nav>
+
+<script type="text/javascript">
+    function show(id)
+    {
+        $("#feed-" + id).removeClass("hidden");
+    }
+</script>

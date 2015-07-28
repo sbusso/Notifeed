@@ -1,0 +1,34 @@
+<ul class="list-group">
+    <?php foreach ($this->groups as $group) { ?>
+    <li class="list-group-item">
+        <div class="pull-right">
+            <div class="badge"><i class="glyphicon glyphicon-user"></i> <?php echo $group['members']; ?></div>
+            <a href="#" onclick="showGroupName(<?php echo $group['id']; ?>); return false;"><i class="glyphicon glyphicon-edit"></i></a>
+            <a href="/delete-group/<?php echo $group['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer ce groupe ?');"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+        <a href="/group/<?php echo $group['id']; ?>"><?php echo $group['name']; ?></a><br />
+        <form method="post" class="form-inline hidden" role="form" id="form-group-<?php echo $group['id']; ?>" action="/rename-group">
+            <input name="group" type="hidden" value="<?php echo $group['id']; ?>" />
+            <div class="form-group">
+                <input name="name" type="text" class="form-control" value="<?php echo $group['name']; ?>" />
+            </div>
+            <button class="btn btn-info" type="submit">Modifier</button>
+        </form>
+    </li>
+    <?php } ?>
+    <li class="list-group-item">
+        <form method="post" action="/create-group" role="form" class="form-inline">
+            <label class="form-group form-group-sm">
+                <input type="text" class="form-control" name="group" placeholder="Nouveau groupe" />
+            </label>
+            <button class="btn btn-default">Créer</button>
+        </form>
+    </li>
+</ul>
+
+<script type="text/javascript">
+    function showGroupName(group)
+    {
+        $("#form-group-" + group).removeClass("hidden");
+    }
+</script>

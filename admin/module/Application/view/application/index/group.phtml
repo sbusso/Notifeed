@@ -1,0 +1,22 @@
+<h1><?php echo $name; ?></h1>
+<br />
+
+<ul class="list-group">
+<?php foreach ($this->users as $user) { ?>
+    <li class="list-group-item list-group-item-text">
+        <?php echo $user; ?>
+        <div class="pull-right">
+            <a href="/group-delete-user/<?php echo $id; ?>/<?php echo $user; ?>" onclick="return confirm('Voulez-vous réellement retirer cet utilisateur du groupe ?');"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+    </li>
+<?php } ?>
+    <li class="list-group-item">
+        <form method="post" action="/group-add-user" role="form" class="form-inline">
+            <input type="hidden" name="id" value="<?php echo $id; ?>" />
+            <div class="form-group form-group-sm">
+                <input name="user" placeholder="Ajouter un utilisateur" class="form-control" />
+            </div>
+            <button class="btn btn-info">Ajouter</button>
+        </form>
+    </li>
+</ul>

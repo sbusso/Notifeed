@@ -1,0 +1,33 @@
+<h1><a href="/feed/<?php echo $id; ?>"><?php echo $this->name; ?></a></h1>
+
+<ul class="list-group">
+    <?php foreach ($this->groups as $group) { ?>
+    <li class="list-group-item list-group-item-text">
+        <a href="/group/<?php echo $group['id']; ?>"><?php echo $group['name']; ?></a>
+        <div class="pull-right">
+            <a href="/feed-auth-delete/<?php echo $id; ?>/<?php echo $group['id']; ?>"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+    </li>
+    <?php } ?>
+    <li class="list-group-item list-group-item-text list-group-item-heading">
+        <form method="post" action="/feed-auth-add" role="form" class="form-inline">
+            <input type="hidden" name="feed" value="<?php echo $id; ?>" />
+            <div class="form-group">
+                <select name="groups[]" id="groups" multiple="multiple" class="form-control">
+                    <?php foreach ($all_groups as $group) { ?>
+                    <option value="<?php echo $group['id']; ?>"><?php echo $group['name']; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <button class="btn btn-info" type="submit">Ajouter</button>
+        </form>
+    </li>
+</ul>
+
+<script type="text/javascript">
+    $("#groups").chosen();
+</script>
+
+<?php
+    $this->headScript()->appendFile('/chosen/chosen.jquery.min.js');
+    $this->headLink()->appendStylesheet('/chosen/chosen.min.css')->appendStylesheet('/chosen/chosen-bootstrap.css');

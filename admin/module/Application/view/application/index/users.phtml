@@ -1,0 +1,65 @@
+<a class="btn btn-block btn-info" role="button" href="/create-user/<?php echo $page; ?>"><i class="glyphicon glyphicon-plus"></i> Créer utilisateur</a>
+<br />
+<?php foreach ($this->users as $user => $infos) { ?>
+<ul class="list-group">
+    <li class="list-group-item list-group-item-heading list-group-item-text">
+        <?php echo $user; ?>
+        <div class="pull-right">
+            <a href="/admin-user/<?php echo $user; ?>/<?php echo $this->page; ?>"><i class="glyphicon glyphicon-star<?php if (!$infos['admin']) echo '-empty'; ?>"></i></a>
+            <a href="/delete-user/<?php echo $user; ?>/<?php echo $this->page; ?>" onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+    </li>
+    <?php $i = 0; foreach ($infos['datas'] as $key => $info) { ++$i; ?>
+    <li class="list-group-item list-group-item-text"><strong id="key-old-<?php echo $i; ?>-<?php echo $user; ?>"><?php echo htmlentities($key, ENT_NOQUOTES, 'utf-8'); ?></strong> :
+        <?php if (strlen($info) <= 15) { ?>
+        <span id="value-old-<?php echo $i; ?>-<?php echo $user; ?>"><?php echo htmlentities($info, ENT_NOQUOTES, 'utf-8'); ?></span>
+        <?php } else { ?>
+        <a id="value-old-<?php echo $i; ?>-<?php echo $user; ?>" role="button" data-toggle="popover" data-trigger="click" data-placement="top" title="Contenu complet" data-content="<?php echo wordwrap(htmlentities($info, ENT_QUOTES, 'utf-8'), 25, "\n", true); ?>"><?php echo htmlentities(substr($info, 0, 12), ENT_NOQUOTES, 'utf-8'); ?>...</a>
+        <?php } ?>
+        
+        <a class="pull-right" onclick="update_content(<?php echo $i; ?>, '<?php echo $user; ?>'); return false;"><i class="glyphicon glyphicon-edit"></i></a>
+    </li>
+    <?php } ?>
+    <li class="list-group-item list-group-item-text">
+        <form method="post" action="/update-user/<?php echo $user; ?>/<?php echo $page; ?>" role="form" class="form-inline clearfix">
+            <div class="col-xs-5"><input class="input-sm form-control" placeholder="Clef" name="key" id="key-<?php echo $user; ?>" /></div>
+            <div class="col-xs-5"><input class="input-sm form-control" placeholder="Valeur" name="value" id="value-<?php echo $user; ?>" /></div>
+            <button class="btn btn-sm btn-info col-xs-2" type="submit"><i class="glyphicon glyphicon-ok"></i></button>
+        </form>
+    </li>
+</ul>
+<?php } ?>
+
+<nav class="text-center">
+    <ul class="pagination">
+        <?php if ($page > 0) { ?>
+        <li>
+            <a href="/users/<?php echo $page - 1; ?>" aria-label="Précédent">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        <?php } ?>
+        <?php for ($i = 1; $i <= $total; $i++) { ?>
+        <li><a href="/users/<?php echo $i - 1; ?>"<?php if ($i - 1 === $page) echo ' class="active"'; ?>><?php echo $i; ?></a></li>
+        <?php } ?>
+        <?php if ($page < ($total - 1)) { ?>
+        <li>
+            <a href="/users/<?php echo $page + 1; ?>" aria-label="Suivant">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+        <?php } ?>
+    </ul>
+</nav>
+
+<script type="text/javascript">
+    $(function () {
+        $('[data-toggle="popover"]').popover()
+    });
+    
+    function update_content(id, user)
+    {
+        $("#key-" + user).val($("#key-old-" + id + "-" + user).html());
+        $("#value-" + user).val($("#value-old-" + id + "-" + user).html());
+    }
+</script>

@@ -1,0 +1,17 @@
+<div class="center-block text-center">
+    <?php if ($this->error !== '') { ?>
+    <div class="alert alert-danger danger"><?php echo $this->error; ?></div>
+    <?php } ?>
+    <form role="form" method="post" action="/login" class="alert alert-info">
+        <label class="form-group">
+            <input class="form-control input-lg" placeholder="Identifiant" name="login" type="text" value="<?php echo $this->login; ?>" />
+        </label><br />
+        <label class="form-group">
+            <input class="form-control input-lg" placeholder="Mot de passe" name="password" type="password" value="<?php echo $this->password; ?>" />
+        </label><br />
+        <label class="form-group">
+            <input class="form-control input-lg" name="server" type="text" value="<?php echo $this->server; ?>" placeholder="Serveur Notifeed" />
+        </label><br />
+        <button class="btn btn-lg" type="submit">Connexion</button>
+    </form>
+</div>

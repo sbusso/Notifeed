@@ -1,0 +1,34 @@
+<ul class="list-group">
+    <?php foreach ($this->feeds as $feed) { ?>
+    <li class="list-group-item">
+        <div class="pull-right">
+            <a href="/feed-auth/<?php echo $feed['id']; ?>"><i class="glyphicon glyphicon-lock"></i></a>
+            <a href="#" onclick="showFeedName(<?php echo $feed['id']; ?>); return false;"><i class="glyphicon glyphicon-edit"></i></a>
+            <a href="/delete-feed/<?php echo $feed['id']; ?>" onclick="return confirm('Voulez-vous vraiment supprimer ce flux ?');"><i class="glyphicon glyphicon-remove"></i></a>
+        </div>
+        <a href="/feed/<?php echo $feed['id']; ?>"><?php echo $feed['name']; ?></a><br />
+        <form method="post" class="form-inline hidden" role="form" id="form-feed-<?php echo $feed['id']; ?>" action="/rename-feed">
+            <input name="feed" type="hidden" value="<?php echo $feed['id']; ?>" />
+            <div class="form-group">
+                <input name="name" type="text" class="form-control" value="<?php echo $feed['name']; ?>" />
+            </div>
+            <button class="btn btn-info" type="submit">Modifier</button>
+        </form>
+    </li>
+    <?php } ?>
+    <li class="list-group-item">
+        <form method="post" action="/create-feed" role="form" class="form-inline">
+            <label class="form-group form-group-sm">
+                <input type="text" class="form-control" name="feed" placeholder="Nouveau feed" />
+            </label>
+            <button class="btn btn-default">Créer</button>
+        </form>
+    </li>
+</ul>
+
+<script type="text/javascript">
+    function showFeedName(feed)
+    {
+        $("#form-feed-" + feed).removeClass("hidden");
+    }
+</script>
